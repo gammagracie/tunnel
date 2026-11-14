@@ -205,11 +205,20 @@ document.getElementById('faster').addEventListener('click', () => {
   targetSpeed = Math.min(MAXS, targetSpeed + 3);
 });
 const pauseBtn = document.getElementById('pause');
+let lastPauseToggle = 0;
 function togglePause() {
   if (!began) return;
+  // a fast double-click must not pause+resume and look like a dead button
+  const now = performance.now();
+  if (now - lastPauseToggle < 350) return;
+  lastPauseToggle = now;
   paused = !paused;
   pauseBtn.textContent = paused ? '▶' : '❙❙';
   pauseBtn.classList.toggle('off', paused);
+  hud.name.textContent = paused ? '❙❙  paused' : '▶';
+  hud.name.classList.remove('show');
+  void hud.name.offsetWidth;
+  hud.name.classList.add('show');
 }
 pauseBtn.addEventListener('click', togglePause);
 
@@ -271,7 +280,8 @@ function frame() {
 
   if (began) {
     const goal = paused ? 0 : targetSpeed;
-    speed += (goal - speed) * Math.min(1, dt * 1.5);
+    // brake gently, but pick up briskly on resume so the button feels alive
+    speed += (goal - speed) * Math.min(1, dt * (paused ? 1.5 : 3.5));
     dist = (dist + speed * dt) % total;
   }
 
