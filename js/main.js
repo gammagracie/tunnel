@@ -9,6 +9,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ride } from './segments/registry.js';
 import { AudioEngine } from './audio.js';
+import { createEvents } from './events.js';
 import { glowSprite } from './lib/helpers.js';
 
 // ---------- renderer / scene ----------
@@ -132,7 +133,7 @@ function applyEnv(dist) {
 }
 function blendedAudio(i, j, f) {
   const a = envs[i].audio, b = envs[j].audio, out = {};
-  for (const k of ['drone', 'pad', 'bells', 'chant', 'wind', 'bright'])
+  for (const k of ['drone', 'pad', 'bells', 'chant', 'wind', 'bright', 'melody'])
     out[k] = (a[k] ?? 0) + ((b[k] ?? 0) - (a[k] ?? 0)) * f;
   return out;
 }
@@ -140,6 +141,9 @@ function blendedAudio(i, j, f) {
 // ---------- audio ----------
 const audio = new AudioEngine();
 let muted = false;
+
+// ---------- journey events (shooting stars, lanterns, sparkle showers) ----------
+const events = createEvents(scene);
 
 // ---------- controls ----------
 let dist = 0;
@@ -249,6 +253,7 @@ window.lumen = {
   get total() { return total; },
   speed(v) { targetSpeed = Math.max(MINS, Math.min(MAXS, v)); },
   audio,
+  renderer,
 };
 {
   const at = new URLSearchParams(location.search).get('at');
@@ -301,7 +306,13 @@ function frame() {
 
   // env + segment updates
   const { i, j, f } = applyEnv(dist);
-  if (i !== lastSeg) { lastSeg = i; showName(i); }
+  if (i !== lastSeg) {
+    const first = lastSeg === -1;
+    lastSeg = i;
+    showName(i);
+    if (!first && began) audio.swell();   // soft riser crossing each threshold
+  }
+  if (began) events.update(t, dt, rig.position, sun.material.opacity);
   for (const it of instances) {
     const near = dist > it.start - 80 && dist < it.start + it.def.length + 80;
     it.built.group.visible = near || it.ghost === true && dist > total - 120;

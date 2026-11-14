@@ -2,7 +2,7 @@
 // an infinity well; slow drifting orbs hang in the dark.
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { tunnelShell, portalRing, neonBars, glowSprite, rng } from '../lib/helpers.js';
+import { tunnelShell, tunnelRibs, portalRing, neonBars, glowSprite, rng } from '../lib/helpers.js';
 
 export default function mirror({ length = 200, seed = 23 } = {}) {
   return {
@@ -14,12 +14,13 @@ export default function mirror({ length = 200, seed = 23 } = {}) {
       skyTop: 0x020a10, skyBot: 0x04131a,
       sun: 0, ambient: 0.1, ambientColor: 0x9fe8ff,
     },
-    audio: { drone: 0.4, pad: 0.5, bells: 0.5, chant: 0.32, wind: 0.04, bright: 0.78 },
+    audio: { drone: 0.4, pad: 0.5, bells: 0.5, chant: 0.32, wind: 0.04, bright: 0.78, melody: 0.4 },
 
     build() {
       const g = new THREE.Group();
       const r = rng(seed * 877);
       g.add(tunnelShell({ length, radius: 7, color: 0x030a0e }));
+      g.add(tunnelRibs({ length, radius: 7, step: 11, color: 0x0e2630 }));
 
       const mouthA = portalRing(0x9fe8ff, 5.4); mouthA.position.z = -2; g.add(mouthA);
       const mouthB = portalRing(0x9fe8ff, 5.4); mouthB.position.z = -(length - 2); g.add(mouthB);

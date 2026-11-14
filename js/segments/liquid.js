@@ -1,7 +1,7 @@
 // Liquid grotto — clusters of glowing amber/magenta liquid columns in a wide
 // dark chamber, bubbles rising, molten pools pulsing on the floor.
 import * as THREE from 'three';
-import { tunnelShell, portalRing, glowSprite, liquidTexture, rng } from '../lib/helpers.js';
+import { tunnelShell, tunnelRibs, portalRing, glowSprite, liquidTexture, rng } from '../lib/helpers.js';
 
 export default function liquid({ length = 220, seed = 41 } = {}) {
   return {
@@ -13,12 +13,13 @@ export default function liquid({ length = 220, seed = 41 } = {}) {
       skyTop: 0x0c0406, skyBot: 0x160709,
       sun: 0, ambient: 0.1, ambientColor: 0xff9a5a,
     },
-    audio: { drone: 0.6, pad: 0.45, bells: 0.18, chant: 0.5, wind: 0, bright: 0.38 },
+    audio: { drone: 0.6, pad: 0.45, bells: 0.18, chant: 0.5, wind: 0, bright: 0.38, melody: 0.28 },
 
     build() {
       const g = new THREE.Group();
       const r = rng(seed * 509);
       g.add(tunnelShell({ length, radius: 10, color: 0x0a0506 }));
+      g.add(tunnelRibs({ length, radius: 10, step: 14, color: 0x2b1210 }));
 
       const mouthA = portalRing(0xff9a5a, 5.6); mouthA.position.z = -2; g.add(mouthA);
       const mouthB = portalRing(0xff9a5a, 5.6); mouthB.position.z = -(length - 2); g.add(mouthB);

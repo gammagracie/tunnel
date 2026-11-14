@@ -17,14 +17,20 @@ import mirror from './mirror.js';
 import liquid from './liquid.js';
 import cathedral from './cathedral.js';
 import cosmos from './cosmos.js';
+import jungle from './jungle.js';
+import stargate from './stargate.js';
+import gallery from './gallery.js';
 
 export const ride = [
   openAir({ length: 240, variant: 'coast', seed: 7 }),
   neon({ length: 210 }),
   openAir({ length: 150, variant: 'forest', seed: 19 }),
+  jungle({ length: 230 }),
   mirror({ length: 200 }),
   liquid({ length: 220 }),
   cosmos({ length: 230 }),
+  stargate({ length: 240 }),
   openAir({ length: 150, variant: 'coast', seed: 31 }),
+  gallery(),                       // length auto-sizes to the artwork list
   cathedral({ length: 240 }),
 ];

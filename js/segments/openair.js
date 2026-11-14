@@ -2,7 +2,7 @@
 // variant: 'coast' (sea + city lights + sun glint) or 'forest' (pines).
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { glowSprite, rng } from '../lib/helpers.js';
+import { glowSprite, trussPylonGeometry, rng } from '../lib/helpers.js';
 
 export default function openAir({ length = 240, variant = 'coast', seed = 7 } = {}) {
   return {
@@ -14,7 +14,7 @@ export default function openAir({ length = 240, variant = 'coast', seed = 7 } = 
       skyTop: 0x3c6fb8, skyBot: 0xffcf96,
       sun: 1.0, ambient: 0.9, ambientColor: 0xfff0dd,
     },
-    audio: { drone: 0.12, pad: 0.34, bells: 0.14, chant: 0.0, wind: 0.5, bright: 1.0 },
+    audio: { drone: 0.12, pad: 0.34, bells: 0.14, chant: 0.0, wind: 0.5, bright: 1.0, melody: 0.22 },
 
     build(ctx) {
       const g = new THREE.Group();
@@ -99,16 +99,19 @@ export default function openAir({ length = 240, variant = 'coast', seed = 7 } = 
       const beam = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.45, length + 8), steel);
       beam.position.set(0, 6, -length / 2);
       g.add(beam);
-      // pylons every 30u — lattice towers off to the side, arm over the top
+      // tall open-lattice truss pylons (Tibidabo style) every 30u, their arm
+      // reaching over the beam; the open steelwork sweeps right past the cab
       const pylonGeos = [];
       for (let z = 10; z < length; z += 30) {
-        const px = 4.4;
-        const col = new THREE.BoxGeometry(0.9, 29, 0.9); col.translate(px, -7.5, -z);
-        const col2 = new THREE.BoxGeometry(0.7, 26, 0.7); col2.translate(px + 2.4, -9, -z);
-        const arm = new THREE.BoxGeometry(7.4, 0.6, 0.8); arm.translate(px - 2.2, 6.8, -z);
-        const brace = new THREE.BoxGeometry(0.4, 9.5, 0.4);
-        brace.rotateZ(0.6); brace.translate(px + 1.2, 1.5, -z);
-        pylonGeos.push(col, col2, arm, brace);
+        const px = 4.6;
+        const tower = trussPylonGeometry({ height: 29.5, base: 2.6, top: 1.2 });
+        tower.translate(px, -22, -z);
+        pylonGeos.push(tower);
+        const arm = new THREE.BoxGeometry(7.6, 0.5, 0.7); arm.translate(px - 2.6, 7.2, -z);
+        const tie = new THREE.BoxGeometry(0.14, 1.4, 0.14); tie.translate(0, 6.6, -z);
+        // finial cap like the Tibidabo towers
+        const cap = new THREE.ConeGeometry(0.55, 1.2, 6); cap.translate(px, 8.1, -z);
+        pylonGeos.push(arm, tie, cap);
       }
       g.add(new THREE.Mesh(mergeGeometries(pylonGeos), steel));
 

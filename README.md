@@ -87,9 +87,32 @@ to that same layer gain — the per-segment mixes keep working unchanged.
 
 | file | world |
 |---|---|
-| `openair.js` | sunset coast / pine forest, suspended track + pylons |
+| `openair.js` | sunset coast / pine forest, suspended track + open lattice truss pylons |
 | `neon.js` | violet LED lattice tunnel |
 | `mirror.js` | reflective-floor infinity hall |
 | `liquid.js` | glowing liquid columns, molten pools, rising bubbles |
 | `cathedral.js` | golden arches, god-rays, drifting motes, heavy chant |
 | `cosmos.js` | dark gallery of projected nebulae / pixel starbursts, overhead pipes, spark streams |
+| `jungle.js` | deep rainforest: canopy pressing in, vines, god-rays, bioluminescent flowers, fireflies |
+| `stargate.js` | immersive galaxy passage: 3,400-speck nebula, dandelion light-blooms, drifting gate rings |
+| `gallery.js` | night museum: framed artworks with picture lamps + plaques, driven by `artworks.js` |
+
+### The Night Gallery's collection
+
+`js/segments/artworks.js` lists the pieces. Drop image files into
+`assets/art/` and reference them there (`src`, `title`, `artist`); the room
+auto-sizes to the list and hangs everything with a lamp and plaque. Pieces
+without an image get a painted placeholder.
+
+### Journey events (`js/events.js`)
+
+Rare one-off moments layered over any segment — shooting stars over open
+stretches, a lantern-bearer drifting past in tunnels, sparkle showers. Each
+event declares its own timing and when it may fire (how "outdoor" the current
+environment is); add more by pushing an entry into the `defs` array.
+
+### Structure helpers
+
+`tunnelRibs` sweeps structural rings down any shell (depth cues — you feel
+*inside* a built tube); `trussPylonGeometry` builds the Tibidabo-style open
+lattice towers used by the open-air segments.

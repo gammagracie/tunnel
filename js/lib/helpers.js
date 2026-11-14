@@ -114,6 +114,57 @@ export function liquidTexture(baseStops, blobColor = 'rgba(255,230,180,0.5)') {
   return t;
 }
 
+// Structural ribs along a tunnel — rings sweeping past give strong depth
+// cues and make the tube feel physically built around you. One merged mesh.
+export function tunnelRibs({ length, radius = 6, step = 8, color = 0x11131c, thick = 0.22, sides = 18 }) {
+  const geos = [];
+  for (let z = step / 2; z < length; z += step) {
+    const g = new THREE.TorusGeometry(radius - 0.15, thick, 5, sides);
+    g.translate(0, 0, -z);
+    geos.push(g);
+  }
+  return new THREE.Mesh(
+    mergeGeometries(geos),
+    new THREE.MeshLambertMaterial({ color, emissive: color, emissiveIntensity: 0.25 })
+  );
+}
+
+// Open lattice truss pylon (Tibidabo style): four corner legs + zig-zag
+// cross-bracing, tapering slightly. Returns ONE merged geometry (caller
+// translates/merges further), so a whole row of pylons stays one draw call.
+export function trussPylonGeometry({ height = 26, base = 2.2, top = 1.1 } = {}) {
+  const geos = [];
+  const leg = 0.09;
+  const lerp = (a, b, f) => a + (b - a) * f;
+  const bar = (x1, y1, z1, x2, y2, z2, t = leg) => {
+    const a = new THREE.Vector3(x1, y1, z1), b = new THREE.Vector3(x2, y2, z2);
+    const len = a.distanceTo(b);
+    const g = new THREE.BoxGeometry(t, len, t);
+    const mid = a.clone().add(b).multiplyScalar(0.5);
+    const q = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize());
+    g.applyMatrix4(new THREE.Matrix4().compose(mid, q, new THREE.Vector3(1, 1, 1)));
+    geos.push(g);
+  };
+  const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+  // legs
+  for (const [cx, cz] of corners)
+    bar(cx * base / 2, 0, cz * base / 2, cx * top / 2, height, cz * top / 2, 0.12);
+  // horizontal rings + zig-zag braces on each face
+  const bands = 6;
+  for (let i = 0; i < bands; i++) {
+    const y0 = (height / bands) * i, y1 = (height / bands) * (i + 1);
+    const w0 = lerp(base, top, y0 / height) / 2, w1 = lerp(base, top, y1 / height) / 2;
+    for (let f = 0; f < 4; f++) {
+      const [ax, az] = corners[f], [bx, bz] = corners[(f + 1) % 4];
+      bar(ax * w0, y0, az * w0, bx * w0, y0, bz * w0, 0.06);           // ring
+      if (i % 2 === 0) bar(ax * w0, y0, az * w0, bx * w1, y1, bz * w1, 0.055); // diag
+      else bar(bx * w0, y0, bz * w0, ax * w1, y1, az * w1, 0.055);
+    }
+  }
+  return mergeGeometries(geos);
+}
+
 // Simple deterministic pseudo-random (so rebuilds look identical per seed).
 export function rng(seed) {
   let s = seed >>> 0;

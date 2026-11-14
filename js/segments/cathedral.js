@@ -13,7 +13,7 @@ export default function cathedral({ length = 240, seed = 67 } = {}) {
       skyTop: 0x1a140a, skyBot: 0x2a2114,
       sun: 0, ambient: 0.35, ambientColor: 0xffe9b8,
     },
-    audio: { drone: 0.32, pad: 0.6, bells: 0.3, chant: 0.8, wind: 0.04, bright: 1.0 },
+    audio: { drone: 0.32, pad: 0.6, bells: 0.3, chant: 0.8, wind: 0.04, bright: 1.0, melody: 0.25 },
 
     build() {
       const g = new THREE.Group();

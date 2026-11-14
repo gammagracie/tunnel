@@ -45,7 +45,7 @@ export default function cosmos({ length = 230, seed = 83 } = {}) {
       skyTop: 0x010104, skyBot: 0x030308,
       sun: 0, ambient: 0.07, ambientColor: 0x6677ff,
       },
-    audio: { drone: 0.65, pad: 0.4, bells: 0.28, chant: 0.4, wind: 0, bright: 0.3 },
+    audio: { drone: 0.65, pad: 0.4, bells: 0.28, chant: 0.4, wind: 0, bright: 0.3, melody: 0.3 },
 
     build() {
       const g = new THREE.Group();

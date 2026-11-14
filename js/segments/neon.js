@@ -1,7 +1,7 @@
 // Neon lattice tunnel — electric violet-white diamond geometry on dark walls,
 // inspired by the LED lattice corridor footage.
 import * as THREE from 'three';
-import { tunnelShell, portalRing, neonBars, glowSprite, rng } from '../lib/helpers.js';
+import { tunnelShell, tunnelRibs, portalRing, neonBars, glowSprite, rng } from '../lib/helpers.js';
 
 export default function neon({ length = 220, seed = 11 } = {}) {
   return {
@@ -13,12 +13,13 @@ export default function neon({ length = 220, seed = 11 } = {}) {
       skyTop: 0x060412, skyBot: 0x0b0718,
       sun: 0, ambient: 0.12, ambientColor: 0x8f7bff,
     },
-    audio: { drone: 0.5, pad: 0.4, bells: 0.4, chant: 0.18, wind: 0.08, bright: 0.6 },
+    audio: { drone: 0.5, pad: 0.4, bells: 0.4, chant: 0.18, wind: 0.08, bright: 0.6, melody: 0.35 },
 
     build() {
       const g = new THREE.Group();
       const r = rng(seed * 313);
       g.add(tunnelShell({ length, radius: 6.5, color: 0x07060e }));
+      g.add(tunnelRibs({ length, radius: 6.5, step: 9, color: 0x1c1535 }));
 
       const mouthA = portalRing(0xb9a4ff); mouthA.position.z = -2; g.add(mouthA);
       const mouthB = portalRing(0xb9a4ff); mouthB.position.z = -(length - 2); g.add(mouthB);

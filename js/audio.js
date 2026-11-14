@@ -9,7 +9,9 @@
 //   bells  — sparse pentatonic plucks with echo
 //   chant  — formant-filtered voice-like swells
 //   wind   — filtered noise (outdoors / speed)
-// Plus a rail hum tied to ride speed.
+//   melody — sparse lead line wandering through the current chord
+// Plus a rail hum tied to ride speed, and swell() — a soft riser the engine
+// triggers when the ride crosses into a new world.
 
 const CHORDS = [
   [45, 57, 60, 64],   // Am
@@ -67,6 +69,7 @@ export class AudioEngine {
       bells: this._makeLayerGain(0),
       chant: this._makeLayerGain(0),
       wind: this._makeLayerGain(0),
+      melody: this._makeLayerGain(0),
     };
 
     this._buildDrone();
@@ -76,6 +79,7 @@ export class AudioEngine {
     this._startPads();
     this._startBells();
     this._startChantCycle();
+    this._startMelody();
 
     // fade master in
     this.master.gain.linearRampToValueAtTime(0.85, ctx.currentTime + 3);
@@ -276,12 +280,74 @@ export class AudioEngine {
     this.timers.push(setTimeout(ping, 2500));
   }
 
-  // Crossfade to a segment's mix. profile: {drone,pad,bells,chant,wind,bright}
+  // Sparse lead line: every few seconds a soft sine/triangle voice slides to
+  // a new tone from the current chord, an octave or two up — a distant music
+  // box wandering through the harmony.
+  _startMelody() {
+    const step = () => {
+      if (!this.started) return;
+      const { ctx } = this;
+      const chord = CHORDS[this.chordIndex];
+      const note = chord[Math.floor(Math.random() * chord.length)] +
+        (Math.random() < 0.6 ? 24 : 12);
+      const now = ctx.currentTime;
+      const o = ctx.createOscillator();
+      o.type = Math.random() < 0.5 ? 'sine' : 'triangle';
+      o.frequency.value = midi(note);
+      // small slide into the note
+      o.frequency.setValueAtTime(midi(note) * 0.985, now);
+      o.frequency.linearRampToValueAtTime(midi(note), now + 0.4);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.11, now + 0.9);
+      g.gain.linearRampToValueAtTime(0.0, now + 3.8);
+      o.connect(g).connect(this.layers.melody);
+      o.start(now); o.stop(now + 4);
+      this.timers.push(setTimeout(step, 2400 + Math.random() * 3600));
+    };
+    this.timers.push(setTimeout(step, 4000));
+  }
+
+  // Threshold swell: a gentle airy riser + high chord tone bloom, fired when
+  // the ride passes into a new world.
+  swell() {
+    if (!this.started) return;
+    const { ctx } = this;
+    const now = ctx.currentTime;
+    // airy noise riser
+    const n = ctx.createBufferSource();
+    n.buffer = this._noiseBuffer(); n.loop = true;
+    const f = ctx.createBiquadFilter();
+    f.type = 'bandpass'; f.Q.value = 1.4;
+    f.frequency.setValueAtTime(500, now);
+    f.frequency.exponentialRampToValueAtTime(3600, now + 2.6);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.06, now + 2.2);
+    g.gain.linearRampToValueAtTime(0, now + 4.2);
+    n.connect(f).connect(g).connect(this.master);
+    g.connect(this.wet);
+    n.start(now); n.stop(now + 4.4);
+    // shimmering high fifth over the current chord root
+    const chord = CHORDS[this.chordIndex];
+    for (const [nn, del] of [[chord[1] + 24, 0], [chord[3] + 24, 0.5]]) {
+      const o = ctx.createOscillator();
+      o.type = 'sine'; o.frequency.value = midi(nn);
+      const og = ctx.createGain();
+      og.gain.setValueAtTime(0, now + del);
+      og.gain.linearRampToValueAtTime(0.07, now + del + 1.6);
+      og.gain.linearRampToValueAtTime(0, now + del + 4.5);
+      o.connect(og).connect(this.wet);
+      o.start(now + del); o.stop(now + del + 4.6);
+    }
+  }
+
+  // Crossfade to a segment's mix. profile: {drone,pad,bells,chant,wind,bright,melody}
   setProfile(p, fade = 1.2) {
     this.profile = p;
     if (!this.started) return;
     const now = this.ctx.currentTime;
-    for (const k of ['drone', 'pad', 'bells', 'chant', 'wind']) {
+    for (const k of ['drone', 'pad', 'bells', 'chant', 'wind', 'melody']) {
       const g = this.layers[k].gain;
       g.cancelScheduledValues(now);
       g.setValueAtTime(g.value, now);
