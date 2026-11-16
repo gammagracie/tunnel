@@ -96,6 +96,7 @@ to that same layer gain — the per-segment mixes keep working unchanged.
 | `jungle.js` | deep rainforest: canopy pressing in, vines, god-rays, bioluminescent flowers, fireflies |
 | `stargate.js` | immersive galaxy passage: 3,400-speck nebula, dandelion light-blooms, drifting gate rings |
 | `gallery.js` | night museum: framed artworks with picture lamps + plaques, driven by `artworks.js` |
+| `mars.js` | Martian desert under a butterscotch sky; NASA's newest Mars surface photos stand as lamplit steles (`assets/mars/`, NASA/JPL-Caltech) |
 
 ### The Night Gallery's collection
 

@@ -261,6 +261,7 @@ window.lumen = {
   get dist() { return dist; },
   get total() { return total; },
   speed(v) { targetSpeed = Math.max(MINS, Math.min(MAXS, v)); },
+  look(y = 0, p = 0) { tYaw = y; tPitch = p; lastLook = performance.now() + 30000; },
   audio,
   renderer,
 };

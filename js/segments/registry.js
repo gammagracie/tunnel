@@ -20,6 +20,7 @@ import cosmos from './cosmos.js';
 import jungle from './jungle.js';
 import stargate from './stargate.js';
 import gallery from './gallery.js';
+import mars from './mars.js';
 
 export const ride = [
   openAir({ length: 240, variant: 'coast', seed: 7 }),
@@ -30,6 +31,7 @@ export const ride = [
   liquid({ length: 220 }),
   cosmos({ length: 230 }),
   stargate({ length: 240 }),
+  mars({ length: 250 }),
   openAir({ length: 150, variant: 'coast', seed: 31 }),
   gallery(),                       // length auto-sizes to the artwork list
   cathedral({ length: 240 }),
