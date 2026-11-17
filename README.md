@@ -4,11 +4,12 @@ An interactive meditative ride: a suspended monorail glides through open-air
 coastline and a sequence of glowing tunnel worlds, with generative ambient
 audio (drones, pads, bells, synthesized chanting).
 
-Run it: start the `lumenrail-static` server (port 8935) and open
+Run it: start the `tunnel-static` server (port 8935) and open
 http://localhost:8935/
 
 Controls: tap/click to board · arrow keys (hold) or drag to look around ·
-scroll wheel, − / + keys or the on-screen − + to change speed ·
+scroll wheel, − / + keys or the on-screen − + to change speed
+(keep slowing past zero to ride in reverse) ·
 double-tap space (or ❙❙) to pause and resume · M (or ♪) to mute.
 The gaze drifts back to center a couple of seconds after you let go.
 

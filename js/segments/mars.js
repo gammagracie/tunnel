@@ -108,9 +108,9 @@ export default function mars({ length = 250, seed = 571 } = {}) {
         const side = i % 2 === 0 ? -1 : 1;
         const z = -(36 + i * spacing);
         // size from aspect: portraits stand tall, panoramas stretch long
-        const H = ph.aspect > 2.5 ? Math.min(4.2, 15 / ph.aspect) : 4.6;
-        const W = Math.min(17, H * ph.aspect);
-        const x = side * (8.5 + (W > 10 ? 3 : 0));
+        const H = ph.aspect > 2.5 ? Math.min(4.6, 24 / ph.aspect) : 5.2;
+        const W = Math.min(24, H * ph.aspect);
+        const x = side * (8.5 + (W > 12 ? 4 : 0));
 
         const frame = new THREE.Mesh(
           new THREE.BoxGeometry(W + 0.44, H + 0.44, 0.2),

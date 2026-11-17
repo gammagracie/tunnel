@@ -76,21 +76,21 @@ export default function gallery({ length = 0, seed = 203 } = {}) {
       artworks.forEach((art, i) => {
         const side = i % 2 === 0 ? -1 : 1;
         const z = -(28 + i * SPACING);
-        const W = 4.6, H = 3.3;
+        const W = 6.6, H = 4.7;
 
         // frame
         const frame = new THREE.Mesh(
           new THREE.BoxGeometry(W + 0.5, H + 0.5, 0.18),
           new THREE.MeshLambertMaterial({ color: 0x4a3b22, emissive: 0x241c0e, emissiveIntensity: 0.4 })
         );
-        frame.position.set(side * 6.4, 2.6, z);
+        frame.position.set(side * 6.4, 2.9, z);
         frame.rotation.y = -side * Math.PI / 2;
         g.add(frame);
 
         // canvas — placeholder now, real image swapped in when it loads
         const mat = new THREE.MeshBasicMaterial({ map: placeholderTexture(r) });
         const canvas = new THREE.Mesh(new THREE.PlaneGeometry(W, H), mat);
-        canvas.position.set(side * 6.28, 2.6, z);
+        canvas.position.set(side * 6.28, 2.9, z);
         canvas.rotation.y = -side * Math.PI / 2;
         g.add(canvas);
         if (art.src) loader.load(art.src, (tex) => {
@@ -101,7 +101,7 @@ export default function gallery({ length = 0, seed = 203 } = {}) {
 
         // plaque beneath
         const plaque = new THREE.Mesh(
-          new THREE.PlaneGeometry(1.7, 0.42),
+          new THREE.PlaneGeometry(2.1, 0.5),
           new THREE.MeshBasicMaterial({ map: plaqueTexture(art.title, art.artist), transparent: true })
         );
         plaque.position.set(side * 6.3, 0.55, z);
@@ -109,12 +109,12 @@ export default function gallery({ length = 0, seed = 203 } = {}) {
         g.add(plaque);
 
         // picture lamp: warm glow above the frame + light pool on the canvas
-        const lamp = glowSprite(0xffe2b0, 1.6, 0.85);
-        lamp.position.set(side * 6.0, 4.8, z);
+        const lamp = glowSprite(0xffe2b0, 1.8, 0.85);
+        lamp.position.set(side * 6.0, 5.8, z);
         lamps.push({ lamp, ph: r() * 6 });
         g.add(lamp);
-        const pool = glowSprite(0xffe8c8, 5.2, 0.3);
-        pool.position.set(side * 5.9, 2.6, z);
+        const pool = glowSprite(0xffe8c8, 6.4, 0.3);
+        pool.position.set(side * 5.9, 2.9, z);
         g.add(pool);
       });
 

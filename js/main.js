@@ -149,7 +149,7 @@ const events = createEvents(scene);
 let dist = 0;
 let speed = 9, targetSpeed = 9;
 let paused = false;
-const MINS = 2, MAXS = 28;
+const MINS = -10, MAXS = 28;   // negative = ride in reverse
 let yaw = 0, pitch = 0, tYaw = 0, tPitch = 0;
 let dragging = false, lx = 0, ly = 0, lastLook = 0;
 
@@ -273,6 +273,7 @@ window.lumen = {
 // ---------- main loop ----------
 const clock = new THREE.Clock();
 let audioTimer = 0;
+let wasReverse = false;
 
 function frame() {
   requestAnimationFrame(frame);
@@ -283,7 +284,7 @@ function frame() {
     const goal = paused ? 0 : targetSpeed;
     // brake gently, but pick up briskly on resume so the button feels alive
     speed += (goal - speed) * Math.min(1, dt * (paused ? 1.5 : 3.5));
-    dist = (dist + speed * dt) % total;
+    dist = ((dist + speed * dt) % total + total) % total;
   }
 
   // cab sway + gentle breathing height
@@ -336,6 +337,16 @@ function frame() {
     audioTimer = 0;
     audio.setProfile(blendedAudio(i, j, f), 0.6);
     audio.setSpeed(speed);
+  }
+
+  // direction toast when crossing into / out of reverse
+  const rev = targetSpeed < -0.01;
+  if (began && rev !== wasReverse) {
+    wasReverse = rev;
+    hud.name.textContent = rev ? '◀  reverse' : '▶';
+    hud.name.classList.remove('show');
+    void hud.name.offsetWidth;
+    hud.name.classList.add('show');
   }
 
   // HUD speed bar

@@ -361,7 +361,7 @@ export class AudioEngine {
   setSpeed(v) {
     if (!this.started) return;
     const now = this.ctx.currentTime;
-    const n = Math.min(1, v / 30);
+    const n = Math.min(1, Math.abs(v) / 30);   // reverse hums the same as forward
     this.humGain.gain.setTargetAtTime(0.02 + n * 0.1, now, 0.4);
     this.humOsc.frequency.setTargetAtTime(42 + n * 70, now, 0.4);
     this.humFilter.frequency.setTargetAtTime(110 + n * 240, now, 0.4);
