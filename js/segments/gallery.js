@@ -47,6 +47,34 @@ function plaqueTexture(title, artist) {
   return new THREE.CanvasTexture(c);
 }
 
+// A cylindrical patch hugging the inside of the tunnel wall: the artwork's
+// width runs along the direction of travel, its height curves with the wall.
+// side: -1 left wall, +1 right wall. zc: centre z. CY: hanging height.
+function curvedPanelGeometry(W, H, R, side, zc, segs = 20) {
+  const CY = 2.6;
+  const phiC = side > 0 ? Math.asin(CY / R) : Math.PI - Math.asin(CY / R);
+  const dPhi = H / R;
+  const pos = [], uv = [], idx = [];
+  for (let i = 0; i <= segs; i++) {
+    const s = i / segs;                                // 0 bottom → 1 top
+    const phi = phiC + side * (s - 0.5) * dPhi;
+    for (let j = 0; j <= 1; j++) {
+      pos.push(R * Math.cos(phi), R * Math.sin(phi), zc + side * (j - 0.5) * W);
+      uv.push(j, s);
+    }
+  }
+  for (let i = 0; i < segs; i++) {
+    const a = i * 2;
+    idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
 export default function gallery({ length = 0, seed = 203 } = {}) {
   const SPACING = 26;
   const autoLen = Math.max(140, artworks.length * SPACING + 40);
@@ -76,45 +104,48 @@ export default function gallery({ length = 0, seed = 203 } = {}) {
       artworks.forEach((art, i) => {
         const side = i % 2 === 0 ? -1 : 1;
         const z = -(28 + i * SPACING);
-        const W = 6.6, H = 4.7;
+        const aspect = art.aspect || 1.4;
+        // portraits hang tall, landscapes wide; curve radius just inside the wall
+        const H = aspect >= 1 ? 4.6 : 5.4;
+        const W = Math.min(7.5, H * aspect);
 
-        // frame
+        // curved backing frame, a hair behind the canvas
         const frame = new THREE.Mesh(
-          new THREE.BoxGeometry(W + 0.5, H + 0.5, 0.18),
-          new THREE.MeshLambertMaterial({ color: 0x4a3b22, emissive: 0x241c0e, emissiveIntensity: 0.4 })
+          curvedPanelGeometry(W + 0.5, H + 0.55, 7.35, side, z),
+          new THREE.MeshLambertMaterial({
+            color: 0x4a3b22, emissive: 0x241c0e, emissiveIntensity: 0.4,
+            side: THREE.DoubleSide,
+          })
         );
-        frame.position.set(side * 6.4, 2.9, z);
-        frame.rotation.y = -side * Math.PI / 2;
         g.add(frame);
 
-        // canvas — placeholder now, real image swapped in when it loads
-        const mat = new THREE.MeshBasicMaterial({ map: placeholderTexture(r) });
-        const canvas = new THREE.Mesh(new THREE.PlaneGeometry(W, H), mat);
-        canvas.position.set(side * 6.28, 2.9, z);
-        canvas.rotation.y = -side * Math.PI / 2;
-        g.add(canvas);
+        // curved canvas — placeholder now, real image swapped in when it loads
+        const mat = new THREE.MeshBasicMaterial({
+          map: placeholderTexture(r), side: THREE.DoubleSide,
+        });
+        g.add(new THREE.Mesh(curvedPanelGeometry(W, H, 7.1, side, z), mat));
         if (art.src) loader.load(art.src, (tex) => {
           tex.colorSpace = THREE.SRGBColorSpace;
           mat.map = tex;
           mat.needsUpdate = true;
         });
 
-        // plaque beneath
+        // plaque beneath the bottom edge
         const plaque = new THREE.Mesh(
           new THREE.PlaneGeometry(2.1, 0.5),
           new THREE.MeshBasicMaterial({ map: plaqueTexture(art.title, art.artist), transparent: true })
         );
-        plaque.position.set(side * 6.3, 0.55, z);
+        plaque.position.set(side * 6.55, Math.max(-0.2, 2.6 - H / 2 - 0.55), z);
         plaque.rotation.y = -side * Math.PI / 2;
         g.add(plaque);
 
         // picture lamp: warm glow above the frame + light pool on the canvas
         const lamp = glowSprite(0xffe2b0, 1.8, 0.85);
-        lamp.position.set(side * 6.0, 5.8, z);
+        lamp.position.set(side * 5.4, 2.6 + H / 2 + 1.0, z);
         lamps.push({ lamp, ph: r() * 6 });
         g.add(lamp);
         const pool = glowSprite(0xffe8c8, 6.4, 0.3);
-        pool.position.set(side * 5.9, 2.9, z);
+        pool.position.set(side * 5.9, 2.6, z);
         g.add(pool);
       });
 

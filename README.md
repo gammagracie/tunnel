@@ -7,7 +7,8 @@ audio (drones, pads, bells, synthesized chanting).
 Run it: start the `tunnel-static` server (port 8935) and open
 http://localhost:8935/
 
-Controls: tap/click to board · arrow keys (hold) or drag to look around ·
+Controls: tap/click to board · arrow keys (hold) or drag to look around
+(you can spin all the way around) ·
 scroll wheel, − / + keys or the on-screen − + to change speed
 (keep slowing past zero to ride in reverse) ·
 double-tap space (or ❙❙) to pause and resume · M (or ♪) to mute.
@@ -102,9 +103,12 @@ to that same layer gain — the per-segment mixes keep working unchanged.
 ### The Night Gallery's collection
 
 `js/segments/artworks.js` lists the pieces. Drop image files into
-`assets/art/` and reference them there (`src`, `title`, `artist`); the room
-auto-sizes to the list and hangs everything with a lamp and plaque. Pieces
-without an image get a painted placeholder.
+`assets/art/` and reference them there (`src`, `aspect`, `title`, `artist`);
+the room auto-sizes to the list and hangs everything with a lamp and plaque,
+each canvas curving with the tunnel wall. Pieces without an image get a
+painted placeholder. The current hang is eight public-domain classics
+(Van Gogh, Whistler, Hokusai, Munch, Monet, Friedrich, Klimt, Turner)
+via Wikimedia Commons.
 
 ### Journey events (`js/events.js`)
 

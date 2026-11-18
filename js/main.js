@@ -184,9 +184,8 @@ el.addEventListener('pointerdown', (e) => { dragging = true; lx = e.clientX; ly 
 addEventListener('pointerup', () => { dragging = false; lastLook = performance.now(); });
 addEventListener('pointermove', (e) => {
   if (!dragging) return;
-  tYaw += (e.clientX - lx) * 0.004;
+  tYaw += (e.clientX - lx) * 0.004;        // free spin — no yaw limit
   tPitch += (e.clientY - ly) * 0.003;
-  tYaw = Math.max(-1.6, Math.min(1.6, tYaw));
   tPitch = Math.max(-0.9, Math.min(0.45, tPitch));
   lx = e.clientX; ly = e.clientY;
   lastLook = performance.now();
@@ -300,12 +299,14 @@ function frame() {
     if (held.has('ArrowRight')) tYaw += rate;
     if (held.has('ArrowUp')) tPitch -= rate;
     if (held.has('ArrowDown')) tPitch += rate;
-    tYaw = Math.max(-1.6, Math.min(1.6, tYaw));
     tPitch = Math.max(-0.9, Math.min(0.45, tPitch));
     lastLook = performance.now();
   }
   // auto-recenter look a few seconds after the last drag
   if (!dragging && performance.now() - lastLook > 2600) {
+    // shed whole turns first so recentering never unwinds a full spin
+    const off = Math.round(tYaw / (Math.PI * 2)) * Math.PI * 2;
+    tYaw -= off; yaw -= off;
     tYaw *= 1 - Math.min(1, dt * 0.5);
     tPitch *= 1 - Math.min(1, dt * 0.5);
   }
